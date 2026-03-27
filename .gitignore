@@ -1,0 +1,11 @@
+# 1. hiddenディレクトリ内のすべてのファイルを一旦無視
+hidden/*
+
+# 2. ただし .gitkeep だけは例外として許可（無視しない）
+!hidden/.gitkeep
+
+# 3. (おまけ) README.md も許可したい場合は追加
+!hidden/README.md
+
+# OS固有のゴミファイル
+.DS_Store
