@@ -76,19 +76,28 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-# --- fif: ripgrep + fzf + bat + vim の最強検索 ---
-fif() {
-  rm -f /tmp/rg-fzf-{r,f}
-  RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case "
-  INITIAL_QUERY="${*:-}"
-  fzf --ansi --disabled --query "$INITIAL_QUERY" \
-      --bind "start:reload:$RG_PREFIX {q}" \
-      --bind "change:reload:sleep 0.1; $RG_PREFIX {q} || true" \
+# --- fif: ripgrep + fzf + bat + $EDITOR の最強検索 (Ctrl+t) ---
+function fif() {
+  local RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case"
+  local INITIAL_QUERY="${*:-}"
+  local EDITOR_CMD="${EDITOR:-vim}"
+  local -a opts=(--ansi --disabled --query "$INITIAL_QUERY")
+  [[ -n "$INITIAL_QUERY" ]] && opts+=(--select-1 --exit-0)
+  fzf "${opts[@]}" \
+      --bind "start:reload:[ -n {q} ] && $RG_PREFIX -- {q} || true" \
+      --bind "change:reload:sleep 0.1; [ -n {q} ] && $RG_PREFIX -- {q} || true" \
       --delimiter : \
       --preview 'bat --color=always --highlight-line {2} {1}' \
       --preview-window 'right,60%,border-left,+{2}+3/3' \
-      --bind 'enter:become(vim {1} +{2})'
+      --bind "enter:become($EDITOR_CMD {1} +{2})"
 }
+
+function fif-widget() {
+  BUFFER="fif"
+  zle accept-line
+}
+zle -N fif-widget
+bindkey '^T' fif-widget
 
 # --- ghq + fzf: リポジトリ移動 (Ctrl+g) ---
 function fzf-src() {
