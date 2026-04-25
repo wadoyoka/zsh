@@ -91,26 +91,16 @@ fif() {
 }
 
 # --- ghq + fzf: リポジトリ移動 (Ctrl+g) ---
-cd_git_repo() {
-  local selected="$(ghq list | fzf)"
-  if [[ -n "$selected" ]]; then
-    cd "$(ghq root)/$selected"
-  fi
-}
-zle -N cd_git_repo
-bindkey '^g' cd_git_repo
-
-# --- peco-src: リポジトリ移動 (Ctrl+]) ※peco派の場合 ---
-function peco-src () {
-  local selected_dir=$(ghq list -p | peco --query "$LBUFFER")
+function fzf-src() {
+  local selected_dir=$(ghq list -p | fzf --query "$LBUFFER")
   if [ -n "$selected_dir" ]; then
     BUFFER="cd ${selected_dir}"
     zle accept-line
   fi
-  zle clear-screen
+  zle reset-prompt
 }
-zle -N peco-src
-bindkey '^]' peco-src
+zle -N fzf-src
+bindkey '^g' fzf-src
 
 # ==============================================================================
 # 6. 隠し設定の読み込み (Secrets & Machine-specific)
